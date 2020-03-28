@@ -1,0 +1,161 @@
+<div class="modal fade" id="subhead_account_modal" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title font-green">Add New Sub head account</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Head</label>
+                            <select name="modal_head" class="form-control" disabled>
+                            </select>
+                            <span class="help-block font-red"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Sub Head</label>
+                            <select name="modal_subhead" class="form-control" disabled>
+                            </select>
+                            <span class="help-block font-red"></span>
+                        </div>
+
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Account Title</label>
+                            <input name="modal_account_subhead" class="form-control" placeholder="Required">
+                            <span class="help-block font-red"></span>
+                        </div>
+
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input name="modal_description" class="form-control">
+                            <span class="help-block font-red"></span>
+                        </div>
+                    </div>
+                    <div id="modal_error" class="col-md-12">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="save_subhead_account">Save</button>
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<script>
+    function get_account_subhead_modal_data() {
+        data = {}
+        data['modal_subhead'] = $('[name = modal_subhead]').val()
+        data['modal_account_subhead'] = $('[name = modal_account_subhead]').val()
+        data['modal_description'] = $('[name = modal_description]').val()
+        return data
+    }
+    function get_account_subhead_modal_errors(data) {
+        errors = {}
+        if ((data['modal_subhead'] == '') || (data['modal_subhead'] == null)) errors['modal_subhead'] = 'This Field is Required'
+        if ((data['modal_account_subhead'] == '') || (data['modal_account_subhead'] == null)) errors['modal_account_subhead'] = 'This Field is Required'
+        return errors
+    }
+    function render_account_subhead_modal_errors(errors) {
+        $('.help-block').text('')
+        Object.keys(errors).forEach(key => {
+            $('[name = ' + key + ']').parents('.form-group').find('.help-block').text(errors[key])
+        })
+    }
+    function save_account_subhead(data) {
+        $.ajax({
+            data: {
+                'title': data['modal_account_subhead'],
+                'subhead': data['modal_subhead'],
+                'description': data['description']
+            },
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            url: '/general_journal/api/account_subhead/',
+            dataType: 'json',
+            type: 'POST',
+            success: function (data) {
+                console.log(data)
+                // var subheads = $("select[name=subhead]")
+                // for (var subhead of subheads) {
+                //     subhead = $(subhead)
+                //     subhead_account = $(subhead.parents('.row')[0]).find('[name=subhead_account]')
+                //     set_sub_head_account(subhead, subhead_account)
+                // }
+                // $('#subhead_account_modal').modal('hide');
+                // alert(subhead_account_val + ' has been added to sub head accounts')
+            },
+            error: function (data) {
+                var html = ''
+                
+                Object.keys(data['responseJSON']).forEach(key => {
+                    console.log(key)
+                    html += ' <div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>' + data['responseJSON'][key] + '</div>'
+                    $('#modal_error').append(html)
+                })
+            }
+        })
+    }
+    $(document).ready(function () {
+        $('[name=add_subhead_account]').click(function () {
+            var head = $($(this).parents('.row')[0]).find('[name=head]')
+            var subhead = $($(this).parents('.row')[0]).find('[name=subhead]')
+            $('.help-block').text('')
+            $('[name = modal_head]').empty().append(new Option(head.find('option:selected').html(), head.val()))
+            $('[name = modal_subhead]').empty().append(new Option(subhead.find('option:selected').html(), subhead.val()))
+        })
+        $('[name  = save_subhead_account]').click(function () {
+            var data = get_account_subhead_modal_data()
+            var errors = get_account_subhead_modal_errors(data)
+            render_account_subhead_modal_errors(errors)
+
+            if (Object.keys(errors).length > 0) return
+            save_account_subhead(data)
+            // if (subhead != '' || account_subhead != '') {
+            //     $.ajax({
+            //         data: {
+            //             'title': account_subhead,
+            //             'subhead': subhead,
+            //             'description': description
+            //         },
+            //         headers: {
+            //             'X-CSRFToken': '{{ csrf_token }}'
+            //         },
+            //         url: '/general_journal/api/account_subhead/',
+            //         dataType: 'json',
+            //         type: 'POST',
+            //         success: function (data) {
+            //             var subheads = $("select[name=subhead]")
+            //             for (var subhead of subheads) {
+            //                 subhead = $(subhead)
+            //                 subhead_account = $(subhead.parents('.row')[0]).find('[name=subhead_account]')
+            //                 set_sub_head_account(subhead, subhead_account)
+            //             }
+            //             $('#subhead_account_modal').modal('hide');
+            //             alert(subhead_account_val + ' has been added to sub head accounts')
+            //         },
+            //         error: function (data) {
+            //             var html = ' <div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>' + data['responseText'] + '</div>'
+            //             $('#modal_error').html(html)
+            //             console.log(data)
+            //         }
+            //     })
+            // }
+            // else console.log('form incomplete')
+
+        })
+
+    })
+</script>

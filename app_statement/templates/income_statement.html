@@ -1,0 +1,202 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<!-- BEGIN PAGE BAR -->
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="#">Entries</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <!-- <li>
+            <a href="#">Blank Page</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <span>Page Layouts</span>
+        </li> -->
+    </ul>
+
+</div>
+
+
+<div class="container">
+    <!-- END PAGE BAR -->
+    <!-- BEGIN PAGE TITLE-->
+    <h1 class="page-title"> Income Statement
+        <small>statement of revenues and expenses</small>
+    </h1>
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <a class="dashboard-stat dashboard-stat-v2 blue" href="#">
+                <div class="visual">
+                    <i class="fa fa-money"></i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        Rs.
+                        <span data-counter="counterup" id="total_revenue">0</span>
+                    </div>
+                    <div class="desc"> Total Revenue </div>
+                </div>
+            </a>
+        </div>
+        <div class="ccol-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <a class="dashboard-stat dashboard-stat-v2 red" href="#">
+                <div class="visual">
+                    <i class="fa fa-money"></i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        Rs.
+                        <span data-counter="counterup" id="total_expense">0</span>
+                    </div>
+                    <div class="desc"> Total Expenses </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <a class="dashboard-stat dashboard-stat-v2 green" href="#">
+                <div class="visual">
+                    <i class="fa fa-money"></i>
+                </div>
+                <div class="details">
+                    <div class="number">
+                        Rs.
+                        <span data-counter="counterup" id="net_income">0</span>
+                    </div>
+                    <div class="desc"> Net Income </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <style>
+        .panel-body ul {
+            padding-inline-end: 20px;
+            padding-inline-start: 20px
+        }
+    </style>
+    <div class="panel-group accordion" id="accordion_revenue">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title" style="font-size: 20px;">
+                    <a style="display:inline-block; font-weight: 500;" class="accordion-toggle" data-toggle="collapse"
+                        data-parent="#accordion_revenue" href="#collapse_revenue">
+                        Revenues </a>
+                </h1>
+            </div>
+            <div id="collapse_revenue" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <ul>
+                        <!-- <li>
+                            <h4 style="display:inline-block;">Salary Expenses</h4>
+                            <h4 style="float:right;">Total: Rs<span>5000</span></h4>
+                            <ul>
+                                <li>
+                                    <h5 style="display:inline-block;">Developers Salary</h5>
+                                    <h5 style="float:right;">Total: Rs<span>3000</span></h5>
+                                </li>
+                                
+                            </ul>
+                        </li> -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group accordion" id="accordion_expense">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title" style="font-size: 20px;">
+                    <a style="display:inline-block; font-weight: 500;" class="accordion-toggle" data-toggle="collapse"
+                        data-parent="#accordion_expense" href="#collapse_expense">
+                        Expenses </a>
+                </h1>
+            </div>
+            <div id="collapse_expense" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <!-- <ul>
+                        <li>
+                            <h4 style="display:inline-block;">Salary Expenses</h4>
+                            <h4 style="float:right;">Total: Rs<span>5000</span></h4>
+                            <ul>
+                                <li>
+                                    <h5 style="display:inline-block;">Developers Salary</h5>
+                                    <h5 style="float:right;">Total: Rs<span>3000</span></h5>
+                                </li>
+                                
+                            </ul>
+                        </li>
+                    </ul> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    function set_income_statement_values(data) {
+        $('#total_revenue').text(data['statement']['Revenue']['Total'])
+        $('#total_expense').text(data['statement']['Expense']['Total'])
+        $('#net_income').text(data['statement']['Revenue']['Total'] - data['statement']['Expense']['Total'])
+
+        function get_lis(subhead) {
+            var acc_subheads = []
+            Object.keys(subhead).forEach(account_subhead => {
+
+                if (account_subhead != 'Total') {
+                    console.log(account_subhead)
+                    acc_subheads.push(
+                        $('<li>').append(
+                            $('<h5>').css('display', 'inline-block').text(account_subhead),
+                            $('<h5>').css('float', 'right').text("Total: Rs." + subhead[account_subhead]['Total']),
+                        )
+                    )
+                }
+            })
+            return acc_subheads
+        }
+        var head = "Revenue"
+        Object.keys(data['statement'][head]).forEach(subhead => {
+            if (subhead != 'Total') {
+                $('#collapse_revenue .panel-body').append(
+                    $('<ul>').append(
+                        $('<li>').append(
+                            $('<h4>').css('display', 'inline-block').text(subhead),
+                            $('<h4>').css('float', 'right').text("Total: Rs." + data['statement'][head][subhead]['Total']),
+                            $('<ul>').append(
+                                get_lis(data['statement'][head][subhead])
+                            )
+                        )
+                    )
+                )
+            }
+        })
+        var head = "Expense"
+        Object.keys(data['statement'][head]).forEach(subhead => {
+            if (subhead != 'Total') {
+                $('#collapse_expense .panel-body').append(
+                    $('<ul>').append(
+                        $('<li>').append(
+                            $('<h4>').css('display', 'inline-block').text(subhead),
+                            $('<h4>').css('float', 'right').text("Total: Rs." + data['statement'][head][subhead]['Total']),
+                            $('<ul>').append(
+                                get_lis(data['statement'][head][subhead])
+                            )
+                        )
+                    )
+                )
+            }
+        })
+    }
+    $.ajax({
+        url: '/statement/api/income_statement',
+        type: 'GET',
+        success: function (data) {
+            set_income_statement_values(data)
+        }
+    })
+</script>
+{% endblock body%}
